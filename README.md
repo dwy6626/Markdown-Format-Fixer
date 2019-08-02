@@ -29,3 +29,14 @@ That is, you still have to do that manually.
 I will do that for my notes after I finish this readme.
 
 [◢▆▅▄▃ 崩╰(〒皿〒)╯潰 ▃▄▅▆◣](https://pttpedia.fandom.com/zh/wiki/◢▆▅▄▃_崩╰(〒皿〒)╯潰_▃▄▅▆◣)
+
+## usege
+
+Prepare python 3.7 and run: (all packages are build-in!)
+
+```bash
+python main.py [your folder]
+```
+
+It will generate a `./output` folder with the same structure as your input  
+If you want to modify output folder, change the variable `OUTPUTDIR` in `main.py`
