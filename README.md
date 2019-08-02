@@ -30,7 +30,7 @@ I will do that for my notes after I finish this readme.
 
 [◢▆▅▄▃ 崩╰(〒皿〒)╯潰 ▃▄▅▆◣](https://pttpedia.fandom.com/zh/wiki/◢▆▅▄▃_崩╰(〒皿〒)╯潰_▃▄▅▆◣)
 
-## usege
+## Usage
 
 Prepare python 3.7 and run: (all packages are build-in!)
 
