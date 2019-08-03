@@ -6,6 +6,14 @@ import re
 
 INPUTDIR = argv[1]
 OUTPUTDIR = 'output'
+SKIP_TITLE = True
+
+
+item_or_title = re.compile(r'^[\-\#+]')
+enumerates = re.compile(r'^\d+\.')
+empty = re.compile(r'(\s+|<br>)')
+empty_wo_br = re.compile(r'\s+')
+null_line = re.compile(r'^[\*_]{1,2}$')
 
 
 def clear_unpaired(symbol, this_line):
@@ -38,23 +46,28 @@ def clear_unpaired(symbol, this_line):
         cuts = []
         for match in redundant.finditer(x):
             cp_stash = stash.copy()
-            i, l = match.start(), match.end() - match.start()
+            i, s = match.start(), match.end() - match.start()
             while cp_stash:
                 stash_i, stash_l = cp_stash.pop(0)
                 if stash_i <= i:
                     i += stash_l
 
-            cuts.append((i, i+l))
+            cuts.append((i, i+s))
 
         while cuts:
             i, f = cuts.pop(0)
             this_line = this_line[:i] + this_line[f:]
             cuts = [(ci - f + i, cf - f + i) for ci, cf in cuts]
-    
+
     empty_content = re.compile(r + r'{2}[ 　\t]+' + r + r'{2}')
-    this_line = empty_content.sub('', this_line)      
+    this_line = empty_content.sub('', this_line)
     empty_content = re.compile(r + r'[ 　\t]+' + r)
-    this_line = empty_content.sub('', this_line)      
+    this_line = empty_content.sub('', this_line)
+
+    # clear ****
+    four_repeat = re.compile(r + r'{4}')
+    this_line = four_repeat.sub('', this_line)
+
     return this_line
 
 
@@ -80,8 +93,15 @@ for fname in file_list:
     input_file = open(fname, 'r')
     output_fname = fname.replace(INPUTDIR, OUTPUTDIR, 1)
     output_file = open(output_fname, 'w')
-    
-    next_line = input_file.readline()
+
+    if SKIP_TITLE:
+        input_file.readline()
+
+    while True:
+        next_line = input_file.readline()
+        if not empty.match(next_line):
+            break
+
     while True:
         this_line = next_line
         next_line = input_file.readline()
@@ -95,30 +115,32 @@ for fname in file_list:
         - empty content
         - not paired but at end of line
         """
-        null_line = re.compile(r'^[\*_]{1,2}$')
         if null_line.match(this_line):
             continue
 
         this_line = clear_unpaired('*', this_line)
         this_line = clear_unpaired('_', this_line)
-  
 
         """
         insert double space after lines when next line is simple text
         the possible exclusions:
         1. enumerates
-        - items 
+        - items
         # title
         ### h3
-        """ 
-        item_or_title = re.compile(r'^[\-\#+]')
-        enumerates = re.compile(r'^\d+\.')
-        empty = re.compile(r'\s+')
+        """
 
-        exclude = item_or_title.findall(next_line) or enumerates.findall(next_line) or empty.match(next_line)
+        exclude = item_or_title.findall(next_line) or enumerates.findall(
+            next_line) or empty.match(this_line)
 
         if not exclude:
             this_line = this_line[:-1] + '  \n'
+
+        """
+        insert <br> for multiple linebreaks
+        """
+        if empty.match(this_line) and empty_wo_br.match(next_line):
+            next_line = '<br>\n'
 
         output_file.write(this_line)
     print('write to {}'.format(output_fname))

@@ -13,6 +13,8 @@ but expected to be 2 lines
 ```
 
 ## This script can:
+- delete h1.
+
 - auto delete for redundant symbels: * or _
 
 - Add line breaks
